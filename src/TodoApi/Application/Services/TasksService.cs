@@ -20,9 +20,9 @@ public class TasksService(
 {
     private const string CacheKey = "todos:all";
 
-    public async Task<IReadOnlyList<TaskDto>> GetAllAsync(TodoQueryParameters query)
+    public async Task<IReadOnlyList<TaskDto>> GetAllAsync(TodoQueryParameters query, CancellationToken cancellationToken)
     {
-        var cached = await redis.GetStringAsync(CacheKey);
+        var cached = await redis.GetStringAsync(CacheKey, cancellationToken);
         if (cached is not null)
         {
             return JsonSerializer.Deserialize<IReadOnlyList<TaskDto>>(cached)!;
@@ -48,18 +48,18 @@ public class TasksService(
                 Status = t.Status,
                 CreatedAt = t.CreatedAt
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var serialized = JsonSerializer.Serialize(result);
         await redis.SetStringAsync(CacheKey, serialized,
-            new DistributedCacheEntryOptions { AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(10) });
+            new DistributedCacheEntryOptions { AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(10) }, cancellationToken);
 
         return result;
     }
 
-    public async Task<TaskEntity?> GetByIdAsync(int id)
+    public async Task<TaskEntity?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        return await context.Todos.FindAsync(id);
+        return await context.Todos.FindAsync(id, cancellationToken);
     }
     
     public async Task<int> GetByStatusAsync(string status)
@@ -138,7 +138,7 @@ public class TasksService(
             var payload = JsonSerializer.Serialize(new { TaskId = taskId, NewStatus = newStatus });
             var body = Encoding.UTF8.GetBytes(payload);
 
-            channel.BasicPublish(exchange: "task.status.changed", routingKey: string.Empty, basicProperties: null, body: body);
+            channel.BasicPublish(exchange: "task.status.changed", routingKey: "", body: body);
         }
         catch (Exception ex)
         {

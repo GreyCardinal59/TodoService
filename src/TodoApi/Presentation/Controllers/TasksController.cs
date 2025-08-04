@@ -10,16 +10,16 @@ namespace TodoApi.Presentation.Controllers;
 public class TasksController(ITasksService tasksService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetTasks([FromQuery] TodoQueryParameters query)
+    public async Task<IActionResult> GetTasks([FromQuery] TodoQueryParameters query, CancellationToken cancellationToken)
     {
-        var todos = await tasksService.GetAllAsync(query);
+        var todos = await tasksService.GetAllAsync(query, cancellationToken);
         return Ok(todos);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetTask(int id)
+    public async Task<IActionResult> GetTask(int id, CancellationToken cancellationToken)
     {
-        var todo = await tasksService.GetByIdAsync(id);
+        var todo = await tasksService.GetByIdAsync(id, cancellationToken);
         return Ok(todo);
     }
 

@@ -6,8 +6,8 @@ namespace TodoApi.Application.Interfaces;
 
 public interface ITasksService
 {
-    Task<IReadOnlyList<TaskDto>> GetAllAsync(TodoQueryParameters query);
-    Task<TaskEntity?> GetByIdAsync(int id);
+    Task<IReadOnlyList<TaskDto>> GetAllAsync(TodoQueryParameters query, CancellationToken cancellationToken);
+    Task<TaskEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<int> GetByStatusAsync(string status);
     Task CreateAsync(CreateTaskDto task, CancellationToken cancellationToken);
     Task<bool> UpdateAsync(int id, TaskUpdateDto updateDto, CancellationToken cancellationToken);
