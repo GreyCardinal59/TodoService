@@ -7,6 +7,7 @@ using TodoApi.Application.Common;
 using TodoApi.Application.DTOs;
 using TodoApi.Application.Interfaces;
 using TodoApi.Domain.Entities;
+using TodoApi.Domain.Enums;
 using TodoApi.Infrastructure.Data;
 
 namespace TodoApi.Application.Services;
@@ -34,7 +35,12 @@ public class TasksService(
             todos = todos.Where(t => t.Title.ToLower().Contains(query.Title.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(query.Status))
-            todos = todos.Where(t => t.Status.ToLower() == query.Status.ToLower());
+        {
+            if (Enum.TryParse<TodoStatus>(query.Status, true, out var statusEnum))
+            {
+                todos = todos.Where(t => t.Status == statusEnum);
+            }
+        }
 
         var result = await todos
             .OrderByDescending(t => t.CreatedAt)
@@ -45,7 +51,7 @@ public class TasksService(
                 Id = t.Id,
                 Title = t.Title,
                 Description = t.Description,
-                Status = t.Status,
+                Status = t.Status.ToString().ToLower(),
                 CreatedAt = t.CreatedAt
             })
             .ToListAsync(cancellationToken);
@@ -64,8 +70,13 @@ public class TasksService(
     
     public async Task<int> GetByStatusAsync(string status)
     {
-        var result = await context.Todos.Where(t => t.Status.ToLower() == status.ToLower()).ToListAsync();
-        return result.Count;
+        if (!Enum.TryParse<TodoStatus>(status, true, out var statusEnum))
+        {
+            return 0;
+        }
+        
+        var result = await context.Todos.Where(t => t.Status == statusEnum).ToListAsync();
+        return result.Count();
     }
 
     public async Task CreateAsync(CreateTaskDto task, CancellationToken cancellationToken)
@@ -108,7 +119,7 @@ public class TasksService(
         await redis.RemoveAsync(CacheKey, cancellationToken);
 
         if (oldTodo.Status != updated.Status)
-            await PublishStatusChange(oldTodo.Id, updated.Status);
+            await PublishStatusChange(oldTodo.Id, updated.Status.ToString());
 
         return true;
     }

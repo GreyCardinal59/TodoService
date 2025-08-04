@@ -13,7 +13,9 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TaskEntity>().ToTable("todos");
+        modelBuilder.Entity<TaskEntity>()
+            .ToTable("todos");
+            
         base.OnModelCreating(modelBuilder);
     }
 }

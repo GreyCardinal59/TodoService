@@ -1,3 +1,5 @@
+using TodoApi.Domain.Enums;
+
 namespace TodoApi.Application.DTOs;
 
 public class TaskDto
