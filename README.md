@@ -21,7 +21,33 @@ Swagger: http://localhost:8080/swagger/index.html
 - Применяются миграции и сидирование
 - Запуск бэка
 
-## Выполненные задания
+## Базовый функционал (CRUD-операции)
+```
+GET /api/tasks
+```
+![img](md-sources/get_api_tasks.png)
+
+```
+POST /api/tasks
+```
+![img](md-sources/post_api_tasks.png)
+
+```
+GET /api/tasks/1
+```
+![img](md-sources/get_task_id.png)
+
+```
+PUT /api/tasks/1
+```
+![img](md-sources/put_api_tasks.png)
+
+```
+DELETE /api/tasks/1
+```
+![img](md-sources/delete_api_task.png)
+
+## Выполненные дополнительные задания
 
 ### Вариант А: Redis
 
@@ -48,3 +74,7 @@ Swagger: http://localhost:8080/swagger/index.html
 Клиент создан внутри приложения, в качестве примера создал метод контроллера, чтобы получить ответ клиента
 
 ![img](md-sources/grpc.png)
+
+## Описание
+
+Старался придерживаться чистой архитектуры, принципам SOLID, но раскидать по слоям (проектам) времени не хватило. 
