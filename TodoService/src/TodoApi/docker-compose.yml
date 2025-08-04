@@ -1,0 +1,51 @@
+services:
+  api:
+    build: .
+    container_name: todo-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+          condition: service_healthy
+      redis:
+          condition: service_started
+      rabbitmq:
+          condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: "Host=postgres;Database=todo;Username=postgres;Password=password"
+      ConnectionStrings__Redis: "redis:6379"
+      ConnectionStrings__Rabbit: "amqp://guest:guest@rabbitmq:5672/"
+
+  postgres:
+    image: postgres:15
+    container_name: todo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "todo"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: todo-redis
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: todo-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "15672:15672" # management ui
+      - "5672:5672"
+
+volumes:
+  pgdata:
